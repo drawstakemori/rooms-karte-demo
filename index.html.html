@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ROOMS+ お客様カルテ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1D6649;
+    --green-mid: #2D9E75;
+    --green-light: #E1F5EE;
+    --green-lightest: #F4FBF8;
+    --amber: #D97706;
+    --amber-light: #FEF3C7;
+    --gray: #6B7280;
+    --gray-light: #F5F5F5;
+    --border: #E5E7EB;
+    --text: #1F2937;
+    --text-sub: #6B7280;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #C8D9E6;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 32px 16px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  /* スマホフレーム */
+  .phone-frame {
+    width: 375px;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  /* ── ヘッダー ── */
+  .header {
+    background: var(--green);
+    padding: 24px 20px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: -20px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .header-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .header-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    
+    letter-spacing: 0.01em;
+  }
+  .header-date {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 18px;
+  }
+  .staff-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    position: relative;
+    z-index: 1;
+  }
+  .staff-avatar {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
+  .staff-name { font-size: 13px; color: #fff; font-weight: 600; margin-bottom: 2px; }
+  .staff-bio { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+  /* ── ボディ ── */
+  .body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── セクション共通 ── */
+  .section {
+    background: #FAFAFA;
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+  }
+  .sec-label {
+    font-size: 10px;
+    color: var(--text-sub);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sec-label-left { display: flex; align-items: center; gap: 5px; }
+  .sec-icon { font-size: 13px; }
+
+  /* ── メッセージ ── */
+  .message {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.75;
+    padding-left: 12px;
+    border-left: 2.5px solid var(--green-mid);
+  }
+
+  /* ── 現在のお部屋 ── */
+  .room-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .room-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .room-key { color: var(--text-sub); }
+  .room-val { color: var(--text); font-weight: 600; }
+  .update-badge {
+    font-size: 10px;
+    background: var(--green-light);
+    color: var(--green);
+    border: 1px solid #5DCAA5;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  /* ── タグ ── */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: default;
+    transition: transform 0.15s;
+  }
+  .tag:hover { transform: scale(1.04); }
+  .tag-green { background: var(--green-light); color: #0A4030; border: 1px solid #5DCAA5; }
+  .tag-amber { background: var(--amber-light); color: #78350F; border: 1px solid #FCD34D; }
+
+  /* ── 次に探すときの希望メモ ── */
+  .wish-list { display: flex; flex-direction: column; gap: 0; }
+  .wish-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text);
+    gap: 6px;
+  }
+  .wish-item:last-child { border-bottom: none; }
+  .wish-left { display: flex; align-items: center; gap: 7px; }
+  .wish-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #7F77DD;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .wish-del {
+    background: none; border: none;
+    color: var(--text-sub); cursor: pointer;
+    font-size: 16px; line-height: 1;
+    display: none;
+    padding: 0 2px;
+    transition: color 0.2s;
+  }
+  .wish-del:hover { color: #E24B4A; }
+
+  /* 編集モード */
+  .editing .wish-dot { background: #E24B4A; }
+  .editing .wish-del { display: block; }
+  .add-row {
+    display: none;
+    margin-top: 10px;
+    gap: 6px;
+  }
+  .add-row.show { display: flex; }
+  .add-input {
+    flex: 1;
+    font-size: 12px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    background: #fff;
+  }
+  .add-input:focus { border-color: var(--green-mid); }
+  .add-btn {
+    font-size: 12px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  /* 編集ボタン */
+  .edit-btn {
+    font-size: 10px;
+    color: var(--green);
+    background: none;
+    border: 1px solid var(--green-mid);
+    border-radius: 20px;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .edit-btn:hover { background: var(--green-light); }
+  .edit-btn.saving {
+    background: var(--green);
+    color: #fff;
+    border-color: var(--green);
+  }
+
+  /* 通知バナー */
+  .notify-banner {
+    background: var(--green-light);
+    border: 1px solid #5DCAA5;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #0A4030;
+    display: none;
+    align-items: flex-start;
+    gap: 8px;
+    animation: slideIn 0.3s ease;
+  }
+  .notify-banner.show { display: flex; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .notify-icon { font-size: 16px; flex-shrink: 0; }
+  .notify-title { font-weight: 600; margin-bottom: 2px; }
+  .notify-sub { font-size: 11px; opacity: 0.8; }
+
+  /* ── CTAボタン ── */
+  .cta-btn {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.02em;
+  }
+  .cta-btn:hover { background: #0A4030; }
+  .cta-btn:active { transform: scale(0.98); }
+
+  /* ── フォームモーダル ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(2px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 32px;
+    width: 375px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: #E5E7EB;
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .modal-sub { font-size: 12px; color: var(--text-sub); margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--text-sub); margin-bottom: 5px; display: block; }
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus { border-color: var(--green-mid); }
+  .form-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+  .form-submit:hover { background: #0A4030; }
+  .choices-wrap { margin-bottom: 8px; }
+  .choices-group { margin-bottom: 10px; }
+  .choices-group-label { font-size: 10px; color: var(--text-sub); font-weight: 600; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .choices-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .choice-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #FCD34D;
+    background: #fff;
+    color: #78350F;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .choice-tag:hover { background: var(--amber-light); }
+  .choice-tag.selected { background: var(--amber-light); border-color: var(--amber); }
+  .choice-tag.disabled { opacity: 0.35; cursor: default; pointer-events: none; }
+  .modal-cancel {
+    width: 100%;
+    padding: 10px;
+    background: none;
+    border: none;
+    color: var(--text-sub);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <p class="header-label">ROOMS+ お客様カルテ</p>
+    <p class="header-name">田中 さくら 様</p>
+    <p class="header-date">ご入居日：2025年3月15日　世田谷区松原</p>
+    <div class="staff-row">
+      <div class="staff-avatar">早</div>
+      <div>
+        <p class="staff-name">早乙女 〇〇</p>
+        <p class="staff-bio">猫好き。休日は下北沢をうろうろしています。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ボディ -->
+  <div class="body">
+
+    <!-- おへやさがしのこと -->
+    <div class="section">
+      <div class="sec-label">
+        <div class="sec-label-left"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>おへやさがしのこと</div>
+      </div>
+      <p class="message">はじめての一人暮らしを任せてもらえて、嬉しかったです！最初は条件がたくさんあって迷っていましたが、一緒に話していく中で「本当に外せないもの」が見えてきましたよね。最終的にさくらさんらしい選択ができたと思っています！またお部屋を探すときは、ぜひ声をかけてくださいね！</p>
+    </div>
+
+    <!-- 現在のお部屋 -->
+    <div class="section">
+      <div class="sec-label">
+        <div class="sec-label-left"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>現在のお部屋</div>
+        <span class="update-badge">更新まで約18ヶ月</span>
+      </div>
+      <div class="room-row"><span class="room-key">物件名</span><span class="room-val">〇〇ハイツ 203号室</span></div>
+      <div class="room-row"><span class="room-key">契約期間</span><span class="room-val">2025年3月〜2027年3月</span></div>
+      <div class="room-row"><span class="room-key">家賃</span><span class="room-val">85,000円／月</span></div>
+    </div>
+
+    <!-- こだわり傾向 -->
+    <div class="section">
+      <div class="sec-label">
+        <div class="sec-label-left"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>こだわり傾向</div>
+      </div>
+      <div class="tags">
+        <span class="tag tag-green">静かな環境</span>
+        <span class="tag tag-green">日当たり良好</span>
+        <span class="tag tag-green">収納たっぷり</span>
+        <span class="tag tag-green">猫と一緒に</span>
+        <span class="tag tag-green">リラックス空間</span>
+        <span class="tag tag-green">おしゃれな街</span>
+      </div>
+    </div>
+
+    <!-- ライフスタイルメモ -->
+    <div class="section">
+      <div class="sec-label">
+        <div class="sec-label-left"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>ライフスタイルメモ</div>
+        <button class="edit-btn" id="lifestyle-btn" onclick="toggleLifestyle()">追加・変更</button>
+      </div>
+      <div class="tags" id="lifestyle-tags">
+        <span class="tag tag-amber">テレワーク</span>
+        <span class="tag tag-amber">料理好き</span>
+        <span class="tag tag-amber">インテリアにこだわる</span>
+        <span class="tag tag-amber">お散歩好き</span>
+        <span class="tag tag-amber">植物育てる</span>
+      </div>
+      <div id="lifestyle-panel" style="display:none;margin-top:12px;">
+        <div id="lifestyle-choices"></div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <input class="add-input" id="lifestyle-input" placeholder="自由入力…" maxlength="20">
+          <button class="add-btn" onclick="addLifestyleTag()">追加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 次に探すときの希望メモ -->
+    <div class="section">
+      <div class="sec-label">
+        <div class="sec-label-left"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>次に探すときの希望メモ</div>
+        <button class="edit-btn" id="wish-btn" onclick="toggleWish()">条件を追加・変更</button>
+      </div>
+      <div class="wish-list" id="wish-list">
+        <div class="wish-item"><div class="wish-left"><div class="wish-dot"></div><span>できれば2LDKに広げたい</span></div><button class="wish-del" onclick="delWish(this)">×</button></div>
+        <div class="wish-item"><div class="wish-left"><div class="wish-dot"></div><span>世田谷・目黒エリアを希望</span></div><button class="wish-del" onclick="delWish(this)">×</button></div>
+        <div class="wish-item"><div class="wish-left"><div class="wish-dot"></div><span>書斎スペースがあると嬉しい</span></div><button class="wish-del" onclick="delWish(this)">×</button></div>
+        <div class="wish-item"><div class="wish-left"><div class="wish-dot"></div><span>猫2匹対応できる物件</span></div><button class="wish-del" onclick="delWish(this)">×</button></div>
+      </div>
+      <div class="add-row" id="wish-add">
+        <input class="add-input" id="wish-input" placeholder="希望条件を入力…" maxlength="30">
+        <button class="add-btn" onclick="addWish()">追加</button>
+      </div>
+    </div>
+    </div>
+
+    <!-- CTAボタン -->
+    <button class="cta-btn" onclick="openModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> 早乙女に相談する ↗
+    </button>
+
+  </div>
+</div>
+
+<!-- 相談フォームモーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <p class="modal-title">早乙女に相談する</p>
+    <p class="modal-sub">お部屋探しのご相談・ご質問をお気軽にどうぞ。メッセージとして担当者に届きます。</p>
+    <div class="form-group">
+      <label class="form-label">相談内容 *</label>
+      <textarea class="form-input" rows="4" placeholder="例）そろそろ引っ越しを考えています。家賃〇〇円くらいでおすすめのお部屋はありますか？"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ご希望の連絡方法</label>
+      <select class="form-input" style="appearance:none; cursor:pointer;">
+        <option>LINE で返信してほしい</option>
+        <option>電話で連絡してほしい</option>
+        <option>来店して相談したい</option>
+      </select>
+    </div>
+    <button class="form-submit" onclick="submitForm()">送信する</button>
+    <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+  </div>
+</div>
+
+<script>
+let wishEditing = false;
+let wishChanged = false;
+let lifestyleEditing = false;
+
+// ── 希望メモ編集 ──
+function toggleWish() {
+  wishEditing = !wishEditing;
+  const list = document.getElementById('wish-list');
+  const btn = document.getElementById('wish-btn');
+  const add = document.getElementById('wish-add');
+  if (wishEditing) {
+    list.classList.add('editing');
+    btn.textContent = '保存する';
+    btn.classList.add('saving');
+    add.classList.add('show');
+    wishChanged = false;
+  } else {
+    list.classList.remove('editing');
+    btn.textContent = '条件を追加・変更';
+    btn.classList.remove('saving');
+    add.classList.remove('show');
+    document.getElementById('wish-input').value = '';
+
+  }
+}
+
+function addWish() {
+  const input = document.getElementById('wish-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const list = document.getElementById('wish-list');
+  const div = document.createElement('div');
+  div.className = 'wish-item';
+  div.innerHTML = `<div class="wish-left"><div class="wish-dot"></div><span>${text}</span></div><button class="wish-del" onclick="delWish(this)">×</button>`;
+  list.appendChild(div);
+  input.value = '';
+  wishChanged = true;
+}
+
+function delWish(btn) {
+  btn.closest('.wish-item').remove();
+  wishChanged = true;
+}
+
+document.getElementById('wish-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addWish();
+});
+
+// ── ライフスタイルメモ選択肢 ──
+const LIFESTYLE_OPTIONS = {
+  '仕事': ['テレワーク','朝早く出勤','夜遅く帰宅','転勤多め','仕事中心の生活'],
+  '趣味': ['料理好き','アウトドア派','インドア派','お散歩好き','おうち時間充実','筋トレ','サウナ','旅行好き','音楽好き'],
+  '部屋': ['インテリアにこだわる','ミニマリスト','植物育てる'],
+};
+
+function buildChoices() {
+  const wrap = document.getElementById('lifestyle-choices');
+  wrap.innerHTML = '';
+  const current = [...document.querySelectorAll('#lifestyle-tags .tag')].map(t => t.dataset.label || t.textContent.replace(' ×','').trim());
+  Object.entries(LIFESTYLE_OPTIONS).forEach(([cat, items]) => {
+    const group = document.createElement('div');
+    group.className = 'choices-group';
+    const label = document.createElement('div');
+    label.className = 'choices-group-label';
+    label.textContent = cat;
+    group.appendChild(label);
+    const tagsDiv = document.createElement('div');
+    tagsDiv.className = 'choices-tags';
+    items.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-tag';
+      btn.textContent = item;
+      if (current.includes(item)) btn.classList.add('selected', 'disabled');
+      btn.onclick = () => {
+        if (btn.classList.contains('disabled')) return;
+        addLifestyleTagByName(item);
+        btn.classList.add('selected', 'disabled');
+      };
+      tagsDiv.appendChild(btn);
+    });
+    group.appendChild(tagsDiv);
+    wrap.appendChild(group);
+  });
+}
+
+function toggleLifestyle() {
+  lifestyleEditing = !lifestyleEditing;
+  const btn = document.getElementById('lifestyle-btn');
+  const panel = document.getElementById('lifestyle-panel');
+  const tags = document.querySelectorAll('#lifestyle-tags .tag');
+  if (lifestyleEditing) {
+    btn.textContent = '保存する';
+    btn.classList.add('saving');
+    panel.style.display = 'block';
+    buildChoices();
+    tags.forEach(t => {
+      if (!t.querySelector('.tag-x')) {
+        const del = document.createElement('span');
+        del.className = 'tag-x';
+        del.textContent = ' ×';
+        del.style.cssText = 'cursor:pointer;font-weight:700;margin-left:2px;';
+        del.onclick = () => { t.remove(); buildChoices(); };
+        t.appendChild(del);
+      }
+    });
+  } else {
+    btn.textContent = '追加・変更';
+    btn.classList.remove('saving');
+    panel.style.display = 'none';
+    document.getElementById('lifestyle-input').value = '';
+    document.querySelectorAll('#lifestyle-tags .tag-x').forEach(s => s.remove());
+  }
+}
+
+function addLifestyleTagByName(text) {
+  const tagsEl = document.getElementById('lifestyle-tags');
+  const span = document.createElement('span');
+  span.className = 'tag tag-amber';
+  span.dataset.label = text;
+  span.textContent = text;
+  const del = document.createElement('span');
+  del.className = 'tag-x';
+  del.textContent = ' ×';
+  del.style.cssText = 'cursor:pointer;font-weight:700;margin-left:2px;';
+  del.onclick = () => { span.remove(); buildChoices(); };
+  span.appendChild(del);
+  tagsEl.appendChild(span);
+}
+
+function addLifestyleTag() {
+  const input = document.getElementById('lifestyle-input');
+  const text = input.value.trim();
+  if (!text) return;
+  addLifestyleTagByName(text);
+  input.value = '';
+}
+
+document.getElementById('lifestyle-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addLifestyleTag();
+});
+
+// ── 相談フォーム ──
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+function submitForm() {
+  closeModal();
+  alert('送信しました！担当の早乙女より近日中にご連絡いたします。');
+}
+</script>
+</body>
+</html>

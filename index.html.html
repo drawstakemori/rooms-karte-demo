@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ROOMS+ お客様カルテ</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
   :root {
     --green: #1D6649;
@@ -77,6 +78,20 @@
     margin-bottom: 2px;
     
     letter-spacing: 0.01em;
+  }
+  .customer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 2px;
+  }
+  .customer-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
   }
   .header-date {
     font-size: 11px;
@@ -400,7 +415,10 @@
   <!-- ヘッダー -->
   <div class="header">
     <p class="header-label">ROOMS+ お客様カルテ</p>
-    <p class="header-name">田中 さくら 様</p>
+    <div class="customer-row">
+      <img id="line-avatar" class="customer-avatar" alt="" style="display:none;">
+      <p class="header-name" id="header-name">お客様</p>
+    </div>
     <p class="header-date">ご入居日：2025年3月15日　世田谷区松原</p>
     <div class="staff-row">
       <div class="staff-avatar">早</div>
@@ -521,6 +539,43 @@
 </div>
 
 <script>
+// ─── LIFF初期化 ───
+const LIFF_ID = '2010173552-Y9jrQzpo';
+
+async function initLiff() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+
+    // LINEアプリ外（PCブラウザ等）から開いた場合はログインを促す
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
+    }
+
+    // LINEプロフィール取得（profile scope必須）
+    const profile = await liff.getProfile();
+    console.log('LINE Profile:', profile);
+
+    // ヘッダーの名前を書き換え
+    const nameEl = document.getElementById('header-name');
+    if (nameEl && profile.displayName) {
+      nameEl.textContent = `${profile.displayName} 様`;
+    }
+
+    // アイコン画像を表示
+    const avatarEl = document.getElementById('line-avatar');
+    if (avatarEl && profile.pictureUrl) {
+      avatarEl.src = profile.pictureUrl;
+      avatarEl.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('LIFF init failed:', err);
+    // 失敗時はそのまま静かにフォールバック（モックの「お客様」表示が残る）
+  }
+}
+
+initLiff();
+
 let wishEditing = false;
 let wishChanged = false;
 let lifestyleEditing = false;
